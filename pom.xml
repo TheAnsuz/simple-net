@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.amrv</groupId>
+    <artifactId>simple-net</artifactId>
+    <version>UNDER-DEVELOP 0.1</version>
+    <name>Simple net</name>
+    <description>A library that allows for simple communication between computers using sockets</description>
+    <developers>
+        <developer>
+            <id>amrv</id>
+            <email>adrianmrv02@gmail.com</email>
+            <name>Adrián Martín Ruiz del Valle</name>
+            <timezone>+2</timezone>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <url>https://github.com/TheAnsuz</url>
+        </developer>
+    </developers>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
+    <build>
+        <finalName>${project.name} ${project.version}</finalName>
+    </build>
+</project>
