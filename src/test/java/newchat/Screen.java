@@ -22,7 +22,6 @@ public class Screen extends javax.swing.JFrame {
 
         final Color color;
         final String prefix;
-
         Action(Color color, String prefix) {
             this.color = color;
             this.prefix = prefix;

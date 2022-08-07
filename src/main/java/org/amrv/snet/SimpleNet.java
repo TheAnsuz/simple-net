@@ -1,9 +1,6 @@
 package org.amrv.snet;
 
 import java.awt.EventQueue;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -14,17 +11,20 @@ public abstract class SimpleNet {
     protected static final float MILIS = 1000f;
 
     private volatile int tps = 20;
-    private boolean paused = false;
     private final Thread internalThread;
 
     /**
-     * Creates the object using the default tickrate, packet reciver and packet
-     * sender.
+     * Creates the object using the default tickrate (20 TPS).
      */
     public SimpleNet() {
         this(20);
     }
 
+    /**
+     * Creates the object using an specified tickrate.
+     *
+     * @param tps the tickrate at wich the object will recive updates
+     */
     public SimpleNet(int tps) {
         this.tps = tps;
         internalThread = new Thread(() -> {
@@ -39,15 +39,12 @@ public abstract class SimpleNet {
 
                 if (delta >= 1) {
 
-                    if (paused)
-                        continue;
-
-                    try {
-                        updateInternal();
-                    } catch (IOException ex) {
-                        Logger.getLogger(Client.class.getName())
-                                .log(Level.SEVERE, null, ex);
-                    }
+//                    try {
+                    updateInternal();
+//                    } catch (IOException ex) {
+//                        Logger.getLogger(Client.class.getName())
+//                                .log(Level.SEVERE, null, ex);
+//                    }
                     delta--;
                 }
             }
@@ -58,23 +55,21 @@ public abstract class SimpleNet {
     }
 
     /**
-     * Sets the paused state of the object's internal thread so it will no
-     * longer be updated automatically using the tickrate.
+     * Gets the tickrate at wich the object is updating.
      *
-     * @param paused the paused state of the object.
+     * @return the tickrate
      */
-    public synchronized void setPaused(boolean paused) {
-        this.paused = paused;
-    }
-
-    public boolean isPaused() {
-        return this.paused;
-    }
-
     public int getTPS() {
         return tps;
     }
 
+    /**
+     * Sets the tickrate at wich the object should recive updates, changing the
+     * tickrate is thread safe however it may result to unexpected behavior if
+     * not controlled correctly.
+     *
+     * @param tps the new tickrate that will be set in the next update
+     */
     public synchronized void setTPS(int tps) {
         this.tps = tps;
     }
@@ -83,10 +78,14 @@ public abstract class SimpleNet {
     protected void finalize() throws Throwable {
         super.finalize();
         this.internalThread.join();
-        this.close();
     }
 
-    protected abstract void close() throws Throwable;
-
-    abstract void updateInternal() throws IOException;
+    /**
+     * The internal update of the object, the implementation must use it to
+     * update all the data and functions here as it will run at the specified
+     * tickrate but wont handle any errors itself. This method used to throw an
+     * exception however now exceptions should be managed by the subclass.
+     *
+     */
+    abstract void updateInternal();
 }

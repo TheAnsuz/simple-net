@@ -1,6 +1,8 @@
 package org.amrv.snet;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -8,49 +10,51 @@ import java.net.Socket;
  *
  * @author Adrian MRV. aka AMRV || Ansuz
  */
-public class TCPClient extends Client {
+public class TCPClient {
 
     private Socket socket;
+    private InputStream input;
+    private OutputStream output;
 
-    @Override
-    public void sendInternal(AppPacket packet) throws IOException {
-        if (getPacketSender().isInitialized())
-            getPacketSender().send(packet);
+    public TCPClient() {
+
     }
 
-    @Override
-    protected void connectInternal(InetAddress address, int port) throws
+    public void connect(InetAddress remoteIp, int remotePort, InetAddress localIp, int localPort) throws
             IOException {
-        super.disconnect();
-
-        socket = new Socket(address, port);
-
-        getPacketSender().initialize(socket.getOutputStream());
-
-        getPacketReciver().initialize(socket.getInputStream());
-
+        this.disconnect();
+        socket = new Socket(remoteIp, remotePort, localIp, localPort);
+        
+        if (!socket.isInputShutdown())
+            input = socket.getInputStream();
+        
+        if (!socket.isOutputShutdown())
+            output = socket.getOutputStream();
     }
 
-    @Override
-    protected void disconnectInternal() throws IOException {
-        if (getPacketReciver().isInitialized())
-            getPacketReciver().closure();
-
-        if (getPacketSender().isInitialized())
-            getPacketSender().closure();
-
+    public void disconnect() throws IOException {
+        if (input != null)
+            input.close();
+        if (output != null)
+            output.close();
         if (socket != null)
             socket.close();
-        
-        socket = null;
     }
 
     @Override
-    protected AppPacket readPacket() throws IOException {
-        if (getPacketReciver().isInitialized() && getPacketReciver().mustRead())
-            return getPacketReciver().read();
-        else
-            return null;
+    protected void finalize() throws Throwable {
+        super.finalize();
+        disconnect();
+    }
+
+    public void send(AppPacket packet) throws IOException {
+        if (output != null)
+            output.write(packet.getData(), 0, packet.getAmount());
+    }
+
+    public void recive(AppPacket storage) throws IOException {
+        if (input != null && input.available() > 0)
+            storage.setAmount(input.read(storage.getData()));
     }
 
 }
